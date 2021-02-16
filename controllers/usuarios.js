@@ -9,12 +9,22 @@ const {
 
 const getUsuarios = async (req, res) => {
 
-    const usuarios = await Usuario.find({}, 'nombre email role google email');
+    const desde = Number(req.query.desde) || 0;
+
+    // De esta forma ambas promesas se ejecutan de forma simultanea
+    const [usuarios, total] = await Promise.all([
+        Usuario
+        .find({}, 'nombre email role google email img')
+        .skip(desde)
+        .limit(5),
+        Usuario.countDocuments()
+    ]);
 
     res.json({
         ok: true,
         usuarios,
-        uid: req.uid
+        uid: req.uid,
+        total
     });
 }
 
